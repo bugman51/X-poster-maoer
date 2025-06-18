@@ -42,18 +42,16 @@ def fetch_real_news_headline():
 
 # === Generate Story (Pollinations with fallback to Gemini) ===
 def generate_story(prompt_topic, is_real=False):
-    if is_real:
-        prompt = (
-            f"Write a breaking news article based on this real headline: '{prompt_topic}'. "
-            f"Make it intense, tabloid-style, emotionally charged, and under 80 words. "
-            f"Must include suspense, drama, or fear Ã¢Â€Â” avoid poetry or metaphor."
-        )
-    else:
-        prompt = (
-            f"Write a fictional BREAKING NEWS story for this headline: '{prompt_topic}'. "
-            f"Style must resemble professional tabloid journalism. Be shocking, brief, and dramatic. "
-            f"Under 80 words. No poetic or literary tone. Emphasize fear, danger, or strange developments."
-        )
+   if is_real:
+    prompt = (
+        f"Write a breaking news tweet based on this real headline: '{prompt_topic}'. "
+        f"Format like a shocking tweet from a tabloid news outlet. Must be suspenseful, intense, and under 280 characters. No hashtags. No poetry."
+    )
+else:
+    prompt = (
+        f"Write a fictional BREAKING NEWS tweet based on this topic: '{prompt_topic}'. "
+        f"Make it feel like a real urgent news alert. Avoid fluff, be direct, scary or strange. Max 280 characters."
+    )
 
     # Try Pollinations first
     try:
