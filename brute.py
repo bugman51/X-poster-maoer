@@ -4,7 +4,7 @@ import requests
 import json
 
 # === CONFIG ===
-output_dir = "Facebook"
+output_dir = "pollinations_output"
 os.makedirs(output_dir, exist_ok=True)
 
 news_text_path = os.path.join(output_dir, "news.txt")
