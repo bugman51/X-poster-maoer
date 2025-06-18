@@ -41,17 +41,19 @@ def fetch_real_news_headline():
     return None
 
 # === Generate Story (Pollinations with fallback to Gemini) ===
-def generate_story(prompt_topic, is_real=False):
+def generate_content(prompt_topic, is_real=False):
     if is_real:
-    prompt = (
-        f"Write a breaking news tweet based on this real headline: '{prompt_topic}'. "
-        f"Format like a shocking tweet from a tabloid news outlet. Must be suspenseful, intense, and under 280 characters. No hashtags. No poetry."
-    )
-else:
-    prompt = (
-        f"Write a fictional BREAKING NEWS tweet based on this topic: '{prompt_topic}'. "
-        f"Make it feel like a real urgent news alert. Avoid fluff, be direct, scary or strange. Max 280 characters."
-    )
+        prompt = (
+            f"""Write a breaking news article based on this real headline: '{prompt_topic}'. 
+            Make it intense, tabloid-style, emotionally charged, and exactly 250 characters long. 
+            Must include suspense, drama, or fear avoid poetry or metaphor."""
+        )
+    else:
+        prompt = (
+            f"""Write a fictional BREAKING NEWS story for this headline: '{prompt_topic}'. 
+            Style must resemble professional tabloid journalism. Be shocking, brief, and dramatic. 
+            Exactly 250 characters. No poetic or literary tone. Emphasize fear, danger, or strange developments."""
+        )
 
     # Try Pollinations first
     try:
@@ -59,7 +61,13 @@ else:
         url = f"https://text.pollinations.ai/{encoded_prompt}"
         response = requests.get(url)
         if response.status_code == 200:
-            return response.text.strip()
+            story = response.text.strip()
+            # Adjust to exactly 250 characters
+            if len(story) > 250:
+                story = story[:250]
+            elif len(story) < 250:
+                story = story + " " * (250 - len(story))
+            return story
         elif response.status_code == 429:
             raise Exception("429 Too Many Requests")
     except Exception as e:
@@ -73,13 +81,19 @@ else:
             r = requests.post(gemini_url, headers=HEADERS_GEMINI, json=payload)
             if r.status_code == 200:
                 data = r.json()
-                return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                story = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                # Adjust to exactly 250 characters
+                if len(story) > 250:
+                    story = story[:250]
+                elif len(story) < 250:
+                    story = story + " " * (250 - len(story))
+                return story
             else:
                 raise Exception(f"Gemini text failed: {r.text}")
         except Exception as e2:
             raise Exception(f"Text generation failed: {e2}")
 
-# === Generate Image (Pollinations with Gemini fallback) ===
+# === Generate Image (Pollinations with fallback to Gemini) ===
 def generate_image(prompt):
     try:
         encoded = requests.utils.quote(prompt)
@@ -116,8 +130,8 @@ def generate_image(prompt):
             raise Exception(f"Image generation failed: {e2}")
 
 # === Save Story as plain text ===
-def save_story(story_text, headline):
-    formatted = f"BREAKING NEWS:: {headline}\n\n{story_text}"
+def save_content(story_text, headline):
+    formatted = f"BREAKING NEWS:\n\n\n{story_text}"
     with open(news_text_path, "w", encoding="utf-8") as f:
         f.write(formatted)
     return news_text_path
@@ -135,8 +149,8 @@ def generate_news():
 
     print(f"Selected {'REAL' if use_real else 'FICTIONAL'} headline: {headline}")
 
-    story = generate_story(headline, is_real=use_real)
-    save_story(story, headline)
+    story = generate_content(headline, is_real=use_real)
+    save_content(story, headline)
     generate_image(story)
 
     print("News story and image generated.")
@@ -144,4 +158,3 @@ def generate_news():
 # === Execute ===
 if __name__ == "__main__":
     generate_news()
-    
