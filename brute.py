@@ -45,14 +45,14 @@ def generate_content(prompt_topic, is_real=False):
     if is_real:
         prompt = (
             f"""Write a breaking news article based on this real headline: '{prompt_topic}'. 
-            Make it intense, tabloid-style, emotionally charged, and exactly 250 characters long. 
+            Make it intense, tabloid-style, emotionally charged, and exactly 220 characters long. 
             Must include suspense, drama, or fear avoid poetry or metaphor."""
         )
     else:
         prompt = (
             f"""Write a fictional BREAKING NEWS story for this headline: '{prompt_topic}'. 
             Style must resemble professional tabloid journalism. Be shocking, brief, and dramatic. 
-            Exactly 250 characters. No poetic or literary tone. Emphasize fear, danger, or strange developments."""
+            Exactly 220 characters. No poetic or literary tone. Emphasize fear, danger, or strange developments."""
         )
 
     # Try Pollinations first
@@ -63,10 +63,10 @@ def generate_content(prompt_topic, is_real=False):
         if response.status_code == 200:
             story = response.text.strip()
             # Adjust to exactly 250 characters
-            if len(story) > 250:
-                story = story[:250]
-            elif len(story) < 250:
-                story = story + " " * (250 - len(story))
+            if len(story) > 240:
+                story = story[:240]
+            elif len(story) < 240:
+                story = story + " " * (240 - len(story))
             return story
         elif response.status_code == 429:
             raise Exception("429 Too Many Requests")
@@ -83,10 +83,10 @@ def generate_content(prompt_topic, is_real=False):
                 data = r.json()
                 story = data["candidates"][0]["content"]["parts"][0]["text"].strip()
                 # Adjust to exactly 250 characters
-                if len(story) > 250:
-                    story = story[:250]
-                elif len(story) < 250:
-                    story = story + " " * (250 - len(story))
+                if len(story) > 240:
+                    story = story[:240]
+                elif len(story) < 240:
+                    story = story + " " * (240 - len(story))
                 return story
             else:
                 raise Exception(f"Gemini text failed: {r.text}")
